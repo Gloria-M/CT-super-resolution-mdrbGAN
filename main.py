@@ -45,7 +45,7 @@ def run_train(args):
             trainer.tb_writer.add_figure('Epoch {:d}'.format(epoch + 1), generated_fig)
 
         if (epoch + 1) % trainer.log_interval == 0 or (epoch + 1) == trainer.end_epoch:
-            print_epoch(epoch + 1, train_dict, None)
+            print_epoch(epoch + 1, train_dict, val_dict)
 
         if (epoch + 1) % trainer.checkpoint_interval == 0:
             trainer.save_checkpoint(epoch + 1)
