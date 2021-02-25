@@ -47,8 +47,8 @@ class Trainer:
                          'sr_range': []
                          }
                          
-        train_names = [ct_file.split('.')[0] for ct_file in os.listdir(self._train_dir)]
-        val_names = [ct_file.split('.')[0] for ct_file in os.listdir(self._val_dir)]
+        train_names = ['{:d}'.format(slice_idx * 10 + 5) for slice_idx in range(16)]
+        val_names = ['1028']
         self.train_loader = make_loader(self._train_dir, train_names, mode='train')
         self.val_loader = make_loader(self._val_dir, val_names, mode='train')
 
@@ -58,8 +58,8 @@ class Trainer:
 
         checkpoint_dict = {'generator': self.model_gan.generator.state_dict(),
                            'discriminator': self.model_gan.discriminator.state_dict(),
-                           'optimizer_g': self.model_gan.state_dict(),
-                           'optimizer_d': self.model_gan.state_dict(),
+                           'optimizer_g': self.optimizer_g.state_dict(),
+                           'optimizer_d': self.optimizer_d.state_dict(),
                            'train_loss': self.train_dict['p_loss'],
                            'train_psnr': self.train_dict['psnr'],
                            'train_range': self.train_dict['sr_range'],
@@ -215,15 +215,25 @@ class Trainer:
 
         return epoch_val_dict
 
-    def epoch_to_tensorboard(self, epoch):
+    def epoch_to_tensorboard(self, epoch, resume=False):
+        
+        if resume:
+            for prev_epoch in range(epoch):                
+                loss_dict = {'train': self.train_dict['p_loss'][prev_epoch],
+                             'validation': self.val_dict['p_loss'][prev_epoch]}
+                psnr_dict = {'train': self.train_dict['psnr'][prev_epoch],
+                             'validation': self.val_dict['psnr'][prev_epoch]}
 
-        loss_dict = {'train': self.train_dict['p_loss'][-1],
-                     'validation': self.val_dict['p_loss'][-1]}
-        psnr_dict = {'train': self.train_dict['psnr'][-1],
-                     'validation': self.val_dict['psnr'][-1]}
+                self.tb_writer.add_scalars('Perceptual loss', loss_dict, global_step=prev_epoch+1)
+                self.tb_writer.add_scalars('PSNR', psnr_dict, global_step=prev_epoch+1)
+        else:
+            loss_dict = {'train': self.train_dict['p_loss'][-1],
+                         'validation': self.val_dict['p_loss'][-1]}
+            psnr_dict = {'train': self.train_dict['psnr'][-1],
+                         'validation': self.val_dict['psnr'][-1]}
 
-        self.tb_writer.add_scalars('Perceptual loss', loss_dict, global_step=epoch+1)
-        self.tb_writer.add_scalars('PSNR', psnr_dict, global_step=epoch+1)
+            self.tb_writer.add_scalars('Perceptual loss', loss_dict, global_step=epoch+1)
+            self.tb_writer.add_scalars('PSNR', psnr_dict, global_step=epoch+1)
 
     def make_ct_trio(self):
 

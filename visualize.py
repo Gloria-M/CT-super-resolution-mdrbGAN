@@ -1,12 +1,11 @@
 import os
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.colors import LinearSegmentedColormap
 
 class FontsScheme:
-    def __init__(self, fonts_dir, plots_dir):
+    def __init__(self, fonts_dir):
 
         regular_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Book.otf")
         bold_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Black.otf")
@@ -69,7 +68,7 @@ class Visualizer:
 
         self._plots_dir = plots_dir
         self._colors = ColorScheme()
-        self._fonts = FontsScheme(fonts_dir, plots_dir)
+        self._fonts = FontsScheme(fonts_dir)
 
     def visualize_ct(self, axis, ct_image, title=None, psnr=None):
 
@@ -111,7 +110,7 @@ class Visualizer:
         plt.savefig(os.path.join(self._plots_dir, 'visualization_epoch_{:d}.svg'.format(epoch + 1)))
         plt.close(fig)
 
-    def get_generated_ct_fig(self, lr_ct, sr_ct, hr_ct, epoch):
+    def get_generated_ct_fig(self, lr_ct, sr_ct, hr_ct):
 
         lr_ct, sr_ct, hr_ct = lr_ct.squeeze().numpy(), sr_ct.squeeze().numpy(), hr_ct.squeeze().numpy()
 
@@ -152,7 +151,6 @@ class Visualizer:
                              fontproperties=self._fonts.textS_font, color=self._colors.darkT)
 
         ylim = axis.get_ylim()
-        # ylim = [axis.get_ylim()[0], np.array(train_loss).mean()]
         axis.set_ylim(ylim)
         yticks = np.linspace(ylim[0], ylim[1], num=6, endpoint=True)
         axis.set_yticks(yticks)
@@ -181,7 +179,6 @@ class Visualizer:
                              fontproperties=self._fonts.textS_font, color=self._colors.darkT)
 
         ylim = axis.get_ylim()
-        # ylim = [5, axis.get_ylim()[1]]
         axis.set_ylim(ylim)
         yticks = np.linspace(ylim[0], ylim[1], num=6, endpoint=True)
         axis.set_yticks(yticks)
