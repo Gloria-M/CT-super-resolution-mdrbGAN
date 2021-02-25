@@ -19,11 +19,13 @@ def main(args):
         trainer.resume_epoch(args.restore_epoch)
 
     for epoch in range(trainer.start_epoch, trainer.end_epoch):
-        train_dict = trainer.train(epoch)
+        train_dict = trainer.train()
         val_dict = trainer.validate()
 
         update_results_dictionary(trainer.train_dict, train_dict)
         update_results_dictionary(trainer.val_dict, val_dict)
+
+        trainer.epoch_to_tensorboard(epoch)
 
         if (epoch + 1) % args.tb_plot_interval == 0:
             lr_ct, sr_ct, hr_ct = trainer.make_ct_trio()
@@ -67,7 +69,7 @@ if __name__ == '__main__':
     # TODO Change num_epochs = 500
     parser.add_argument('--checkpoint_interval', type=int, default=10)
     parser.add_argument('--log_interval', type=int, default=1)
-    parser.add_argument('--tb_plot_interval', type=int, default=10)
+    parser.add_argument('--tb_plot_interval', type=int, default=5)
     parser.add_argument('--start_epoch', type=int, default=0)
     parser.add_argument('--num_epochs', type=int, default=100)
 

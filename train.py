@@ -135,7 +135,7 @@ class Trainer:
             self._lr = param_group['lr']
             break
 
-    def train(self, epoch):
+    def train(self):
 
         perceptual_loss = []
         generator_loss = []
@@ -181,9 +181,6 @@ class Trainer:
                             'sr_range': sr_range
                             }
 
-        self.tb_writer.add_scalar('Perceptual loss', perceptual_loss, global_step=epoch+1)
-        self.tb_writer.add_scalar('PSNR', psnr_score, global_step=epoch+1)
-
         return epoch_train_dict
 
     def validate(self):
@@ -217,6 +214,16 @@ class Trainer:
                           }
 
         return epoch_val_dict
+
+    def epoch_to_tensorboard(self, epoch):
+
+        loss_dict = {'train': self.train_dict['p_loss'][-1],
+                     'validation': self.val_dict['p_loss'][-1]}
+        psnr_dict = {'train': self.train_dict['psnr'][-1],
+                     'validation': self.val_dict['psnr'][-1]}
+
+        self.tb_writer.add_scalars('Perceptual loss', loss_dict, global_step=epoch+1)
+        self.tb_writer.add_scalars('PSNR', psnr_dict, global_step=epoch+1)
 
     def make_ct_trio(self):
 
