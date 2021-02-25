@@ -42,10 +42,9 @@ class Trainer:
                          'psnr': [],
                          'sr_range': []
                          }
-        # TODO change train_names ---> [:256]
-        # TODO change val_names ---> [:32]
-        train_names = [ct_file.split('.')[0] for ct_file in os.listdir(self._train_dir)][:1]
-        val_names = [ct_file.split('.')[0] for ct_file in os.listdir(self._val_dir)][:1]
+                         
+        train_names = [ct_file.split('.')[0] for ct_file in os.listdir(self._train_dir)]
+        val_names = [ct_file.split('.')[0] for ct_file in os.listdir(self._val_dir)]
         self.train_loader = make_loader(self._train_dir, train_names, mode='train')
         self.val_loader = make_loader(self._val_dir, val_names, mode='train')
 
