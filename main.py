@@ -1,11 +1,22 @@
 import os
+import time
 import argparse
+from multiprocessing import Process
 
 from visualize import Visualizer
 from train import Trainer
 from utility_functions import print_epoch, update_results_dictionary
 
-def main(args):
+
+def run_tensorboard(args):
+    print('\n\n--- Starting Tensorboard ...')
+    os.system("tensorboard --logdir={:s} --port={:d}".format(args.tb_logdir, args.tb_port))
+
+
+def run_train(args):
+
+    time.sleep(30)
+    print('-\n\n-- Starting Training ...\n\n')
 
     if not os.path.exists(args.models_dir):
         os.mkdir(args.models_dir)
@@ -62,6 +73,10 @@ if __name__ == '__main__':
     parser.add_argument('--plots_dir', type=str, default='./Plots')
     parser.add_argument('--fonts_dir', type=str, default='./Fonts')
 
+    parser.add_argument('--tb_logdir', type=str, default='./runs')
+    parser.add_argument('--tb_port', type=int, default=16007)
+    parser.add_argument('--tb_plot_interval', type=int, default=5)
+
     parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--mode', type=str, default='train')
 
@@ -69,7 +84,6 @@ if __name__ == '__main__':
     # TODO Change num_epochs = 500
     parser.add_argument('--checkpoint_interval', type=int, default=10)
     parser.add_argument('--log_interval', type=int, default=1)
-    parser.add_argument('--tb_plot_interval', type=int, default=5)
     parser.add_argument('--start_epoch', type=int, default=0)
     parser.add_argument('--num_epochs', type=int, default=100)
 
@@ -86,4 +100,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     print(args)
-    main(args)
+
+    process1 = Process(target=run_tensorboard, args=(args,))
+    process2 = Process(target=run_train, args=(args,))
+
+    process1.start()
+    process2.start()
