@@ -1,4 +1,5 @@
 import os
+from torch.utils.tensorboard import SummaryWriter
 
 from models import *
 from data_loader import make_loader
@@ -14,6 +15,8 @@ class Trainer:
         self._plots_dir = args.plots_dir
         self._device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
 
+        self.tb_writer = SummaryWriter('runs/MultiResidualDenseBlocks_GAN_exp1')
+
         self._num_epochs = args.num_epochs
         self.start_epoch = args.start_epoch
         self.end_epoch = self.start_epoch + self._num_epochs
@@ -24,12 +27,13 @@ class Trainer:
         self._lambda = args.lambda_coeff
         self._n_d_iter = args.n_d_iter
 
-        self._lr_init = args.lr_init
+        self._lr = args.lr_init
         self._lr_decay = args.lr_decay
+        self.tb_writer.add_scalar('Learning rate', self._lr, 1)
 
         self.model_gan = MDRB_GAN(self._device, self._alpha, self._lambda).to(self._device)
-        self.optimizer_g = torch.optim.Adam(self.model_gan.generator.parameters(), lr=self._lr_init)
-        self.optimizer_d = torch.optim.Adam(self.model_gan.discriminator.parameters(), lr=self._lr_init)
+        self.optimizer_g = torch.optim.Adam(self.model_gan.generator.parameters(), lr=self._lr)
+        self.optimizer_d = torch.optim.Adam(self.model_gan.discriminator.parameters(), lr=self._lr)
 
         self.train_dict = {'p_loss': [],
                            'g_loss': [],
@@ -110,7 +114,10 @@ class Trainer:
         self.val_dict['psnr'] = checkpoint_dict['val_psnr']
         self.val_dict['sr_range'] = checkpoint_dict['val_range']
 
-    def update_learning_rate(self):
+    def update_learning_rate(self, epoch):
+
+        self._lr *= self._lr_decay
+        self.tb_writer.add_scalar('Learning rate', self._lr, epoch+1)
 
         for param_group in self.optimizer_g.param_groups:
             param_group['lr'] *= self._lr_decay
@@ -125,10 +132,10 @@ class Trainer:
 
         self.load_checkpoint(checkpoint_epoch)
         for param_group in self.optimizer_g.param_groups:
-            self._lr_init = param_group['lr']
+            self._lr = param_group['lr']
             break
 
-    def train(self):
+    def train(self, epoch):
 
         perceptual_loss = []
         generator_loss = []
@@ -141,8 +148,6 @@ class Trainer:
         for batch_idx, (lr_ct, hr_ct) in enumerate(self.train_loader):
             lr_ct, hr_ct = lr_ct.squeeze(0), hr_ct.squeeze(0)
             lr_ct, hr_ct = lr_ct.to(self._device), hr_ct.to(self._device)
-
-            print(lr_ct.shape, hr_ct.shape)
 
             for _ in range(self._n_d_iter):
                 self.optimizer_d.zero_grad()
@@ -175,6 +180,9 @@ class Trainer:
                             'psnr': psnr_score,
                             'sr_range': sr_range
                             }
+
+        self.tb_writer.add_scalar('Perceptual loss', perceptual_loss, global_step=epoch+1)
+        self.tb_writer.add_scalar('PSNR', psnr_score, global_step=epoch+1)
 
         return epoch_train_dict
 

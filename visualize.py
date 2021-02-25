@@ -12,7 +12,7 @@ class FontsScheme:
         bold_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Black.otf")
 
         self.title_font = fm.FontProperties(fname=regular_font_path)
-        self.title_font.set_size(18)
+        self.title_font.set_size(16)
         self.title_font.set_style('normal')
         self.titleB_font = fm.FontProperties(fname=bold_font_path)
         self.titleB_font.set_size(18)
@@ -80,7 +80,7 @@ class Visualizer:
         img_plot = axis.imshow(ct_image, cmap='gray')
 
         if title is not None:
-            axis.set_ylabel('{:s}\n\n'.format(title.upper()), fontproperties=self._fonts.titleXL_font,
+            axis.set_ylabel('{:s}\n\n'.format(title.upper()), fontproperties=self._fonts.title_font,
                             color=self._colors.darkT)
         if psnr is not None:
             axis.set_title('PSNR = {:.2f}\n'.format(psnr), fontproperties=self._fonts.labels_font,
@@ -90,15 +90,15 @@ class Visualizer:
 
         lr_ct, sr_ct, hr_ct = lr_ct.squeeze().numpy(), sr_ct.squeeze().numpy(), hr_ct.squeeze().numpy()
 
-        fig, ax = plt.subplots(3, 8, figsize=(45, 15), gridspec_kw={'hspace': .15, 'wspace': .25})
+        fig, ax = plt.subplots(3, 8, figsize=(20, 6), gridspec_kw={'hspace': .05, 'wspace': .25})
 
         for idx in range(8):
             if idx > 0:
                 lr_title, sr_title, hr_title = None, None, None
             else:
-                lr_title = 'low-res ct'
-                sr_title = 'super-res ct'
-                hr_title = 'high-res ct'
+                lr_title = 'low-res'
+                sr_title = 'super-res'
+                hr_title = 'high-res'
 
             hr_range = hr_ct[idx].max() - hr_ct[idx].min()
             mse = ((sr_ct[idx] - hr_ct[idx]) ** 2).mean()
@@ -110,6 +110,30 @@ class Visualizer:
 
         plt.savefig(os.path.join(self._plots_dir, 'visualization_epoch_{:d}.svg'.format(epoch + 1)))
         plt.close(fig)
+
+    def get_generated_ct_fig(self, lr_ct, sr_ct, hr_ct, epoch):
+
+        lr_ct, sr_ct, hr_ct = lr_ct.squeeze().numpy(), sr_ct.squeeze().numpy(), hr_ct.squeeze().numpy()
+
+        fig, ax = plt.subplots(3, 8, figsize=(20, 6), gridspec_kw={'hspace': .05, 'wspace': .15})
+
+        for idx in range(8):
+            if idx > 0:
+                lr_title, sr_title, hr_title = None, None, None
+            else:
+                lr_title = 'low-res'
+                sr_title = 'super-res'
+                hr_title = 'high-res'
+
+            hr_range = hr_ct[idx].max() - hr_ct[idx].min()
+            mse = ((sr_ct[idx] - hr_ct[idx]) ** 2).mean()
+            psnr = 10 * np.log10((hr_range ** 2) / mse)
+
+            self.visualize_ct(ax[0, idx], lr_ct[idx], title=lr_title, psnr=psnr)
+            self.visualize_ct(ax[1, idx], sr_ct[idx], title=sr_title)
+            self.visualize_ct(ax[2, idx], hr_ct[idx], title=hr_title)
+
+        return fig
 
     def plot_loss(self, axis, train_loss, val_loss):
 
@@ -127,7 +151,8 @@ class Visualizer:
         axis.set_xticklabels(['{:d}'.format(tick) for tick in xticks],
                              fontproperties=self._fonts.textS_font, color=self._colors.darkT)
 
-        ylim = [axis.get_ylim()[0], np.array(train_loss).mean()]
+        ylim = axis.get_ylim()
+        # ylim = [axis.get_ylim()[0], np.array(train_loss).mean()]
         axis.set_ylim(ylim)
         yticks = np.linspace(ylim[0], ylim[1], num=6, endpoint=True)
         axis.set_yticks(yticks)
@@ -155,7 +180,8 @@ class Visualizer:
         axis.set_xticklabels(['{:d}'.format(tick) for tick in xticks],
                              fontproperties=self._fonts.textS_font, color=self._colors.darkT)
 
-        ylim = [5, axis.get_ylim()[1]]
+        ylim = axis.get_ylim()
+        # ylim = [5, axis.get_ylim()[1]]
         axis.set_ylim(ylim)
         yticks = np.linspace(ylim[0], ylim[1], num=6, endpoint=True)
         axis.set_yticks(yticks)

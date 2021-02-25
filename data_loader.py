@@ -131,6 +131,6 @@ def make_loader(in_dir, ct_names, mode='train'):
     hr_transform = None
 
     dataset_ = CTscansDataset(in_dir, ct_names, lr_transform, hr_transform, mode)
-    dataloader_ = DataLoader(dataset_, batch_size=1, drop_last=True, shuffle=shuffle_batch)
+    dataloader_ = DataLoader(dataset_, batch_size=1, shuffle=shuffle_batch)
 
     return dataloader_
