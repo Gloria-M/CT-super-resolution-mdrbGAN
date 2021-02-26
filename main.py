@@ -9,14 +9,14 @@ from utility_functions import print_epoch, update_results_dictionary
 
 
 def run_tensorboard(args):
-    print('\n\n--- Starting Tensorboard ...')
+    print('\n\n... Starting Tensorboard ...')
     os.system("tensorboard --logdir={:s} --port={:d}".format(args.tb_logdir, args.tb_port))
 
 
 def run_train(args):
 
     time.sleep(30)
-    print('-\n\n-- Starting Training ...\n\n')
+    print('\n\n... Starting Training ...\n\n')
 
     if not os.path.exists(args.models_dir):
         os.mkdir(args.models_dir)
@@ -57,6 +57,8 @@ def run_train(args):
             trainer.update_learning_rate(epoch)
 
         trainer.tb_writer.close()
+        
+    print('\n\n... Finished Training ...\n\n')
 
 
 if __name__ == '__main__':

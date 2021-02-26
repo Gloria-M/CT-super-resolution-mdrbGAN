@@ -24,24 +24,48 @@ def read_trunc_slice(slice_name, in_dir):
 def crop_train(lr_slice, hr_slice):
 
     crop_size = 96
-    num_total_crops = 16
-    full_h, full_w = lr_slice.shape
-    crop_h, crop_w = (full_h - crop_size), (full_w - crop_size)
+    num_crops_h, num_crops_w = 4, 4
+    full_size_h, full_size_w = lr_slice.shape
 
-    h_idxs = random.sample(list(range(crop_h)), num_total_crops)
-    w_idxs = random.sample(list(range(crop_w)), num_total_crops)
+    crop_space_h = [0, full_size_h - (crop_size * num_crops_h)]
+    crop_space_w = [0, full_size_w - (crop_size * num_crops_w)]
+
+    space_idxs_h = []
+    for idx in range(num_crops_h):
+        idx_h = np.random.randint(crop_space_h[0], crop_space_h[1], size=1)[0]
+        space_idxs_h.append(idx_h)
+        crop_space_h[1] -= idx_h
+    start_idxs_h = [space_idxs_h[0]]
+    for idx in range(1, num_crops_h):
+        start_idx = start_idxs_h[idx-1] + crop_size + space_idxs_h[idx]
+        start_idxs_h.append(start_idx)
+    end_idxs_h = [start + crop_size for start in start_idxs_h]
+
+    space_idxs_w = []
+    for idx in range(num_crops_w):
+        idx_w = np.random.randint(crop_space_w[0], crop_space_w[1], size=1)[0]
+        space_idxs_w.append(idx_w)
+        crop_space_w[1] -= idx_w
+    start_idxs_w = [space_idxs_w[0]]
+    for idx in range(1, num_crops_w):
+        start_idx = start_idxs_w[idx-1] + crop_size + space_idxs_w[idx]
+        start_idxs_w.append(start_idx)
+    end_idxs_w = [start + crop_size for start in start_idxs_w]
 
     lr_crops, hr_crops = [], []
-    for crop_idx in range(num_total_crops):
-        start_h, end_h = h_idxs[crop_idx], h_idxs[crop_idx] + crop_size
-        start_w, end_w = w_idxs[crop_idx], w_idxs[crop_idx] + crop_size
-        lr_crop = lr_slice[start_h:end_h, start_w:end_w]
-        hr_crop = hr_slice[start_h:end_h, start_w:end_w]
+    for h_idx in range(num_crops_h):
+        for w_idx in range(num_crops_w):
 
-        lr_crop, hr_crop = torch.tensor(lr_crop), torch.tensor(hr_crop)
-        lr_crop, hr_crop = lr_crop.unsqueeze(0), hr_crop.unsqueeze(0)
-        lr_crops.append(lr_crop)
-        hr_crops.append(hr_crop)
+            start_h, end_h = start_idxs_h[h_idx], end_idxs_h[h_idx]
+            start_w, end_w = start_idxs_w[w_idx], end_idxs_w[w_idx]
+
+            lr_crop = lr_slice[start_h:end_h, start_w:end_w]
+            hr_crop = hr_slice[start_h:end_h, start_w:end_w]
+
+            lr_crop, hr_crop = torch.tensor(lr_crop), torch.tensor(hr_crop)
+            lr_crop, hr_crop = lr_crop.unsqueeze(0), hr_crop.unsqueeze(0)
+            lr_crops.append(lr_crop)
+            hr_crops.append(hr_crop)
 
     lr_crops, hr_crops = torch.stack(lr_crops), torch.stack(hr_crops)
 
