@@ -9,7 +9,7 @@ from utility_functions import print_epoch, update_results_dictionary
 
 
 def run_tensorboard(args):
-    print('\n\n... Starting Tensorboard ...')
+    print('\n\n... Starting Tensorboard ...\n\n')
     os.system("tensorboard --logdir={:s} --port={:d}".format(args.tb_logdir, args.tb_port))
 
 

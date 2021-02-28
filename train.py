@@ -123,7 +123,7 @@ class Trainer:
         for param_group in self.optimizer_d.param_groups:
             param_group['lr'] *= self._lr_decay
         
-        succes_message = 'Learning rate updated to {:.2E}'.format(self._lr)
+        succes_message = 'Learning rate updated to {:.1e}'.format(self._lr)
         print(success_format(succes_message))
 
     def resume_epoch(self, checkpoint_epoch):
