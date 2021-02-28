@@ -29,7 +29,6 @@ class Trainer:
 
         self._lr = args.lr_init
         self._lr_decay = args.lr_decay
-        self.tb_writer.add_scalar('Learning rate', self._lr, 1)
 
         self.model_gan = MDRB_GAN(self._device, self._alpha, self._lambda).to(self._device)
         self.optimizer_g = torch.optim.Adam(self.model_gan.generator.parameters(), lr=self._lr)
@@ -117,13 +116,15 @@ class Trainer:
     def update_learning_rate(self, epoch):
 
         self._lr *= self._lr_decay
-        self.tb_writer.add_scalar('Learning rate', self._lr, epoch+1)
 
         for param_group in self.optimizer_g.param_groups:
             param_group['lr'] *= self._lr_decay
 
         for param_group in self.optimizer_d.param_groups:
             param_group['lr'] *= self._lr_decay
+        
+        succes_message = 'Learning rate updated to {:.2E}'.format(self._lr)
+        print(success_format(succes_message))
 
     def resume_epoch(self, checkpoint_epoch):
 

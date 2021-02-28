@@ -53,7 +53,7 @@ def run_train(args):
             visualizer.visualize_generated_ct(lr_ct, sr_ct, hr_ct, epoch)
             visualizer.visualize_performance(trainer.train_dict, trainer.val_dict, epoch)
 
-        if args.decay_interval and (epoch + 1) % args.decay_interval == 0:
+        if args.decay_interval and (epoch) % args.decay_interval == 0:
             trainer.update_learning_rate(epoch)
 
         trainer.tb_writer.close()
