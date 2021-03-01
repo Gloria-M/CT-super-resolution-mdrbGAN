@@ -212,9 +212,8 @@ class Visualizer:
                         color=self._colors.darkT)
 
         if scores_dict is not None:
-            title = ''
-            for key, val in scores_dict.items():
-                title += '{:>4s} = {:.3f}\n'.format(key, val)
+            title = ' MSE {:.3e}\n'.format(scores_dict['mse'])
+            title += 'PSNR {:.3f}\n'.format(scores_dict['psnr'])
 
             axis.set_title(title, fontproperties=self._fonts.labels_font, color=self._colors.darkT)
 

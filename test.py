@@ -79,7 +79,7 @@ def compute_score(sr_slice, hr_slice):
 
     hr_range = hr_slice.max() - hr_slice.min()
     mse = ((sr_slice - hr_slice) ** 2).mean()
-    psnr = 10 * np.log10((hr_interval ** 2) / mse)
+    psnr = 10 * np.log10((hr_range ** 2) / mse)
 
     scores_dict = {'mse': mse,
                    'psnr': psnr}
