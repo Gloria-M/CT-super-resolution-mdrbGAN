@@ -63,7 +63,7 @@ def recompose_ct_slice(ct_crops):
     num_crops_h, num_crops_w = 4, 4
 
     ct_crops = ct_crops.detach().cpu().squeeze().numpy()
-    full_ct = np.array((full_ct_size, full_ct_size), dtype=ct_crops.dtype)
+    full_ct = np.empty((full_ct_size, full_ct_size), dtype=ct_crops.dtype)
 
     for h_idx in range(num_crops_h):
         for w_idx in range(num_crops_w):
@@ -77,13 +77,11 @@ def recompose_ct_slice(ct_crops):
 
 def compute_score(sr_slice, hr_slice):
 
-    hr_range = [hr_slice.min(), hr_slice.max()]
-    hr_interval = hr_range[1] - hr_range[0]
+    hr_range = hr_slice.max() - hr_slice.min()
     mse = ((sr_slice - hr_slice) ** 2).mean()
     psnr = 10 * np.log10((hr_interval ** 2) / mse)
 
-    scores_dict = {'hr_range': hr_range,
-                   'mse': mse,
+    scores_dict = {'mse': mse,
                    'psnr': psnr}
 
     return scores_dict

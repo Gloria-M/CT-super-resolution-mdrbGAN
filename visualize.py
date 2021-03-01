@@ -214,10 +214,7 @@ class Visualizer:
         if scores_dict is not None:
             title = ''
             for key, val in scores_dict.items():
-                if key == 'hr_range':
-                    title += '{:>8s} : {:3f} - {:.3f}\n'.format(key, val[0], val[1])
-                else:
-                    title += '{:>8s} = {:3f}\n'.format(key, val)
+                title += '{:>4s} = {:.3f}\n'.format(key, val)
 
             axis.set_title(title, fontproperties=self._fonts.labels_font, color=self._colors.darkT)
 

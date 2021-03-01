@@ -138,7 +138,7 @@ class CTscansDataset(Dataset):
         if self.mode == 'train':
             lr_crops, hr_crops = crop_train(lr_ct, hr_ct)
         else:
-            lr_crops, hr_crops = crop_train(lr_ct, hr_ct)
+            lr_crops, hr_crops = crop_test(lr_ct, hr_ct)
 
         return lr_crops, hr_crops
 

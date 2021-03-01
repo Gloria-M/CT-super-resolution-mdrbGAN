@@ -68,7 +68,6 @@ def run_train(args):
 
 def run_test(args):
 
-    time.sleep(30)
     print('\n\n... Starting Testing ...\n\n')
 
     if not os.path.exists(args.plots_dir):
