@@ -15,7 +15,7 @@ class Trainer:
         self._plots_dir = args.plots_dir
         self._device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
 
-        self.tb_writer = SummaryWriter('runs/MultiResidualDenseBlocks_GAN_exp1')
+        self.tb_writer = SummaryWriter('runs/MultiResidualDenseBlocks_GAN_experiment')
 
         self._num_epochs = args.num_epochs
         self.start_epoch = args.start_epoch

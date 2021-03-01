@@ -5,12 +5,17 @@ from multiprocessing import Process
 
 from visualize import Visualizer
 from train import Trainer
-from utility_functions import print_epoch, update_results_dictionary
+from test import Tester
+from utility_functions import print_epoch, update_results_dictionary, print_params
 
 
 def run_tensorboard(args):
     print('\n\n... Starting Tensorboard ...\n\n')
-    os.system("tensorboard --logdir={:s} --port={:d}".format(args.tb_logdir, args.tb_port))
+
+    if args.tb_port is None:
+        os.system("tensorboard --logdir={:s}".format(args.tb_logdir))
+    else:
+        os.system("tensorboard --logdir={:s} --port={:d}".format(args.tb_logdir, args.tb_port))
 
 
 def run_train(args):
@@ -53,12 +58,35 @@ def run_train(args):
             visualizer.visualize_generated_ct(lr_ct, sr_ct, hr_ct, epoch)
             visualizer.visualize_performance(trainer.train_dict, trainer.val_dict, epoch)
 
-        if args.decay_interval and (epoch) % args.decay_interval == 0:
+        if args.decay_interval and epoch % args.decay_interval == 0:
             trainer.update_learning_rate(epoch)
 
         trainer.tb_writer.close()
-        
+
     print('\n\n... Finished Training ...\n\n')
+
+
+def run_test(args):
+
+    time.sleep(30)
+    print('\n\n... Starting Testing ...\n\n')
+
+    if not os.path.exists(args.plots_dir):
+        os.mkdir(args.plots_dir)
+
+    visualizer = Visualizer(args.fonts_dir, args.plots_dir)
+    tester = Tester(args)
+
+    tester.load_checkpoint(args.restore_epoch)
+
+    for idx, ct_name in enumerate(args.test_ct_names):
+        print('   --- CT {:s} :'.format(ct_name), end='')
+
+        lr_slice, sr_slice, hr_slice, scores_dict = tester.test(ct_name)
+        visualizer.visualize_full_slices(lr_slice, sr_slice, hr_slice, scores_dict, idx)
+        print('{:.3f}'.format(scores_dict['psnr']))
+
+    print('\n\n... Finished Testing ...\n\n')
 
 
 if __name__ == '__main__':
@@ -74,7 +102,7 @@ if __name__ == '__main__':
     parser.add_argument('--fonts_dir', type=str, default='./Fonts')
 
     parser.add_argument('--tb_logdir', type=str, default='./runs')
-    parser.add_argument('--tb_port', type=int, default=16007)
+    parser.add_argument('--tb_port', type=int)
     parser.add_argument('--tb_plot_interval', type=int, default=10)
 
     parser.add_argument('--device', type=str, default='cuda')
@@ -96,14 +124,22 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay', type=float, default=1e-1)
     parser.add_argument('--decay_interval', type=int, default=0)
 
+    parser.add_argument('--test_ct_names', nargs='+')
+
     args = parser.parse_args()
 
     print('\n\n')
-    print(args)
+    print_params(args.__dict__)
     print('\n\n')
 
-    process1 = Process(target=run_tensorboard, args=(args,))
-    process2 = Process(target=run_train, args=(args,))
+    if args.mode == 'train':
 
-    process1.start()
-    process2.start()
+        process1 = Process(target=run_tensorboard, args=(args,))
+        process2 = Process(target=run_train, args=(args,))
+
+        process1.start()
+        process2.start()
+
+    elif args.mode == 'test':
+        run_test(args)
+

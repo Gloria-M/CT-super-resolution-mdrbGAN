@@ -200,6 +200,38 @@ class Visualizer:
         plt.savefig(os.path.join(self._plots_dir, 'performance_epoch_{:d}.svg'.format(epoch + 1)))
         plt.close(fig)
 
+    def visualize_slice(self, axis, ct_slice, ct_name, scores_dict=None):
+
+        no_spines_plot(axis)
+        no_ticks_plot(axis)
+        axis.set_aspect('equal')
+
+        img_plot = axis.imshow(ct_slice, cmap='gray')
+
+        axis.set_xlabel('\n{:s}'.format(ct_name.upper()), fontproperties=self._fonts.title_font,
+                        color=self._colors.darkT)
+
+        if scores_dict is not None:
+            title = ''
+            for key, val in scores_dict.items():
+                if key == 'hr_range':
+                    title += '{:>8s} : {:3f} - {:.3f}\n'.format(key, val[0], val[1])
+                else:
+                    title += '{:>8s} = {:3f}\n'.format(key, val)
+
+            axis.set_title(title, fontproperties=self._fonts.labels_font, color=self._colors.darkT)
+
+    def visualize_full_slices(self, lr_slice, sr_slice, hr_slice, scores_dict, plot_idx):
+
+        fig, ax = plt.subplots(1, 3, figsize=(20, 6), gridspec_kw={'wspace': .15})
+
+        self.visualize_slice(ax[0], lr_slice, 'low-res')
+        self.visualize_slice(ax[1], sr_slice, 'super-res', scores_dict)
+        self.visualize_slice(ax[2], hr_slice, 'high-res')
+
+        plt.savefig(os.path.join(self._plots_dir, 'test_results_batch{:d}.svg'.format(plot_idx + 1)))
+        plt.close(fig)
+
 
 def no_spines_plot(axis):
     axis.spines["top"].set_visible(False)

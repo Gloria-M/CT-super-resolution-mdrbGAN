@@ -32,6 +32,11 @@ def print_epoch(epoch, train_dict, val_dict=None):
                 print('  {:>22s} : {:7.3f}'.format(message, val_dict[key]))
 
 
+def print_params(args_dict):
+    for key, val in args_dict.items():
+        print(f'{key} : {val}')
+
+
 def fail_format(fail_message):
     fail_flag = '===FAILED==='
 
