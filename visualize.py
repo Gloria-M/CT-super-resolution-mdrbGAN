@@ -3,9 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.colors import LinearSegmentedColormap
+import wget
+from zipfile import ZipFile
 
 class FontsScheme:
     def __init__(self, fonts_dir):
+
+        font_url = "https://freefontsfamily.com/download/avenir-font/"
+        font_zip_path = wget.download(font_url, out=fonts_dir)
+        with ZipFile(font_zip_path, 'r') as zipObj:
+            zipObj.extractall(path=fonts_dir)
 
         regular_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Book.otf")
         bold_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Black.otf")
@@ -13,29 +20,14 @@ class FontsScheme:
         self.title_font = fm.FontProperties(fname=regular_font_path)
         self.title_font.set_size(16)
         self.title_font.set_style('normal')
-        self.titleB_font = fm.FontProperties(fname=bold_font_path)
-        self.titleB_font.set_size(18)
-        self.titleB_font.set_style('normal')
-        self.titleL_font = fm.FontProperties(fname=regular_font_path)
-        self.titleL_font.set_size(24)
-        self.titleL_font.set_style('normal')
-        self.titleXL_font = fm.FontProperties(fname=regular_font_path)
-        self.titleXL_font.set_size(30)
-        self.titleXL_font.set_style('normal')
 
         self.labels_font = fm.FontProperties(fname=regular_font_path)
         self.labels_font.set_size(14)
         self.labels_font.set_style('normal')
-        self.labelsB_font = fm.FontProperties(fname=bold_font_path)
-        self.labelsB_font.set_size(14)
-        self.labelsB_font.set_style('normal')
 
         self.text_font = fm.FontProperties(fname=regular_font_path)
         self.text_font.set_size(12)
         self.text_font.set_style('normal')
-        self.textB_font = fm.FontProperties(fname=bold_font_path)
-        self.textB_font.set_size(12)
-        self.textB_font.set_style('normal')
         self.textS_font = fm.FontProperties(fname=regular_font_path)
         self.textS_font.set_size(12)
         self.textS_font.set_style('normal')
