@@ -8,7 +8,6 @@ from utility_functions import *
 class Trainer:
     def __init__(self, args):
 
-        self._base_dir = args.base_dir
         self._train_dir = args.train_dir
         self._val_dir = args.val_dir
         self._models_dir = args.models_dir

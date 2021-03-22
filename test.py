@@ -11,7 +11,6 @@ from utility_functions import *
 class Tester:
     def __init__(self, args):
 
-        self._base_dir = args.base_dir
         self._test_dir = args.test_dir
         self._models_dir = args.models_dir
         self._plots_dir = args.plots_dir

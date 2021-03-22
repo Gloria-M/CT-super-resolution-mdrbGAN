@@ -82,7 +82,7 @@ def run_test(args):
         print('   --- CT {:s} :'.format(ct_name), end='')
 
         lr_slice, sr_slice, hr_slice, scores_dict = tester.test(ct_name)
-        visualizer.visualize_full_slices(lr_slice, sr_slice, hr_slice, scores_dict, ct_name)
+        visualizer.visualize_full_slices(lr_slice, sr_slice, hr_slice, scores_dict, ct_name, args.restore_epoch)
         print('{:.3f}'.format(scores_dict['psnr']))
 
     print('\n\n... Finished Testing ...\n\n')
@@ -92,15 +92,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--base_dir', type=str, default='.')
-    parser.add_argument('--train_dir', type=str, default='./Data/Train')
-    parser.add_argument('--val_dir', type=str, default='./Data/Validation')
-    parser.add_argument('--test_dir', type=str, default='./Data/Test')
-    parser.add_argument('--models_dir', type=str, default='./Models')
-    parser.add_argument('--plots_dir', type=str, default='./Plots')
-    parser.add_argument('--fonts_dir', type=str, default='./Fonts')
+    parser.add_argument('--train_dir', type=str, default='Data/Train')
+    parser.add_argument('--val_dir', type=str, default='Data/Validation')
+    parser.add_argument('--test_dir', type=str, default='Data/Test')
+    parser.add_argument('--models_dir', type=str, default='Models')
+    parser.add_argument('--plots_dir', type=str, default='Plots')
+    parser.add_argument('--fonts_dir', type=str, default='Fonts')
 
-    parser.add_argument('--tb_logdir', type=str, default='./runs')
+    parser.add_argument('--tb_logdir', type=str, default='runs')
     parser.add_argument('--tb_port', type=int)
     parser.add_argument('--tb_plot_interval', type=int, default=10)
 
@@ -123,7 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay', type=float, default=1e-1)
     parser.add_argument('--decay_interval', type=int, default=0)
 
-    parser.add_argument('--test_ct_names', nargs='+')
+    parser.add_argument('--test_ct_names', nargs='+', default=['205', '215', '225', '235', '245', '255'])
 
     args = parser.parse_args()
 
@@ -141,4 +140,3 @@ if __name__ == '__main__':
 
     elif args.mode == 'test':
         run_test(args)
-

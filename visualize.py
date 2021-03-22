@@ -9,13 +9,16 @@ from zipfile import ZipFile
 class FontsScheme:
     def __init__(self, fonts_dir):
 
-        font_url = "https://freefontsfamily.com/download/avenir-font/"
-        font_zip_path = wget.download(font_url, out=fonts_dir)
-        with ZipFile(font_zip_path, 'r') as zipObj:
-            zipObj.extractall(path=fonts_dir)
+        if not os.path.exists(fonts_dir):
+            os.mkdir(fonts_dir)
+        if not os.path.exists(os.path.join(fonts_dir, 'avenir_ff')):
+            font_url = "https://freefontsfamily.com/download/avenir-font/"
+            font_zip_path = wget.download(font_url, out=fonts_dir)
+            with ZipFile(font_zip_path, 'r') as zipObj:
+                zipObj.extractall(path=fonts_dir)
 
-        regular_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Book.otf")
-        bold_font_path = os.path.join(fonts_dir, "Avenir-Font/avenir_ff/AvenirLTStd-Black.otf")
+        regular_font_path = os.path.join(fonts_dir, "avenir_ff/AvenirLTStd-Book.otf")
+        bold_font_path = os.path.join(fonts_dir, "avenir_ff/AvenirLTStd-Black.otf")
 
         self.title_font = fm.FontProperties(fname=regular_font_path)
         self.title_font.set_size(16)
@@ -209,7 +212,7 @@ class Visualizer:
 
             axis.set_title(title, fontproperties=self._fonts.labels_font, color=self._colors.darkT)
 
-    def visualize_full_slices(self, lr_slice, sr_slice, hr_slice, scores_dict, ct_name):
+    def visualize_full_slices(self, lr_slice, sr_slice, hr_slice, scores_dict, ct_name, epoch):
 
         fig, ax = plt.subplots(1, 3, figsize=(20, 6), gridspec_kw={'wspace': .15})
 
@@ -217,7 +220,7 @@ class Visualizer:
         self.visualize_slice(ax[1], sr_slice, 'super-res', scores_dict)
         self.visualize_slice(ax[2], hr_slice, 'high-res')
 
-        plt.savefig(os.path.join(self._plots_dir, 'test_results_{:s}.svg'.format(ct_name)))
+        plt.savefig(os.path.join(self._plots_dir, 'test_results_{:s}_{:d}.svg'.format(ct_name, epoch)))
         plt.close(fig)
 
 
