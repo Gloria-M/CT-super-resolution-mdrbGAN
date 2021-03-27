@@ -16,7 +16,7 @@ This will automatically start a Tensorboard session, with the following paramete
 ```
 --tb_port (specify the port number to be used by Tensorboard) 
 --tb_logdir = 'runs' (directory to write logs to Tensorboard)  
---tb_plot_interval = 10 (interval for creating and writing generated CT images | the losses and PSNR scores are logged every *<--log_interval>* epochs)
+--tb_plot_interval = 10 (interval for creating and writing generated CT images | the losses and PSNR scores are logged every <--log_interval> epochs)
 ```  
 
 Control the training by modifying the default values for the following parameters:
