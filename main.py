@@ -122,7 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_decay', type=float, default=1e-1)
     parser.add_argument('--decay_interval', type=int, default=0)
 
-    parser.add_argument('--test_ct_names', nargs='+', default=['205', '215', '225', '235', '245', '255'])
+    parser.add_argument('--test_ct_names', nargs='+')
 
     args = parser.parse_args()
 
