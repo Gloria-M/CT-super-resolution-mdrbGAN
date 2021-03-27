@@ -35,3 +35,17 @@ Test the model saved at training epoch `--restore_epoch` on CT images specified.
 > The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded.
 
 
+## Data path structure
+
+The data directory should have the following structure:
+
+```
+.  
+|-- Data  
+    |-- Test  
+        |-- *.npy  
+    |-- Train  
+        |-- *.npy  
+    |-- Validation  
+        |-- *.npy  
+```
