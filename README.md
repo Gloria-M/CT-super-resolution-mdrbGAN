@@ -2,9 +2,9 @@
 
 This repository contains the implementation of CT super-resolution using multiple dense residual block based GAN presented in [[Zhang et al., 2020]](https://link.springer.com/article/10.1007/s11760-020-01790-5), with slight changes as recommended in [[Gulrajani et al., 2017]](https://arxiv.org/abs/1704.00028) and with architecture parameters adapted from [[Ledig et al., 2017]](https://arxiv.org/abs/1609.04802), in case they were not specified.
 
-### For the complete description of the implementation methods and experiments please refer to [CT_super-resolution](https://gloria-m.github.io/super_resolution.html).
+### For the complete description of the implementation methods and experiments please refer to [CT_super-resolution](https://gloria-m.github.io/super_resolution.html).  
 
-
+<br/>  
 
 ## Usage
 
