@@ -10,16 +10,20 @@ For the complete description of the implementation methods and experiments pleas
 
 ### 1. Train
 
-run `python main.py`
-
-<br/>
-
-##### default parameters 
+run `python main.py`  
+<br/>  
+control the training by modifying the default values for the following parameters:
 ```
---device = cuda  
+--device = cuda (train on cuda)  
 --log_interval = 1 (print train & validation loss each epoch)
 --checkpoint_interval = 100 (save trained model and optimizer parameters every 100 epochs)
 --num_epochs = 500
 ```
+
+### 2. Resume training
+
+run `python main.py --resume_training=true --restore_epoch=*`  
+<br/>  
+Resume training by specifying a valid `--restore_epoch`
 
 
