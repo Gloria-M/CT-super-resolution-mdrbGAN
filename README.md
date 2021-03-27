@@ -53,5 +53,5 @@ The data directory should have the following structure:
 
 ## To Do
 
-> Add pre-processing code for CT scans `*.nii.gz  --> *.npy`  
+> Add pre-processing code for CT scans ***.nii.gz  --> *.npy`** 
 > Write `help` for arguments.  
