@@ -21,7 +21,8 @@ Control the training by modifying the default values for the following parameter
 
 ### 2. Resume training
 
-##### run `python main.py --resume_training=true --restore_epoch=*`  
-Resume training by specifying a valid value for `--restore_epoch`
+#### run `python main.py --resume_training=true --restore_epoch=*`  
+Resume training by specifying a valid value for `--restore_epoch`.  
+The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded
 
 
