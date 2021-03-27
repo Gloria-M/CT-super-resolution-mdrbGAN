@@ -47,5 +47,11 @@ The data directory should have the following structure:
     │   ├── *.npy
     ├── Validation
     │   ├── *.npy
-```
+```  
 
+<br/>  
+
+## To Do
+
+> Add pre-processing code for CT scans `*.nii.gz  --> *.npy`
+> Write `help` for arguments.
