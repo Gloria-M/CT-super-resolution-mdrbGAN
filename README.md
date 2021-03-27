@@ -10,7 +10,8 @@ For the complete description of the implementation methods and experiments pleas
 
 ### 1. Train
 
-#### run `python main.py`  
+#### run 
+`python main.py`  
 Control the training by modifying the default values for the following parameters:
 ```
 --device = cuda (train on cuda)  
