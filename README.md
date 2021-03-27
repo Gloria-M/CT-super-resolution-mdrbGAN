@@ -11,6 +11,14 @@ This repository contains the implementation of CT super-resolution using multipl
 ### 1. Train
 
 #### run `python main.py`  
+
+This will automatically start a Tensorboard session, with the following parameters:  
+```
+--tb_port (specify the port number to be used by Tensorboard) 
+--tb_logdir = 'runs' (directory to write logs to Tensorboard)  
+--tb_plot_interval = 10 (interval for creating and writing generated CT images | the losses and PSNR scores are logged every *<--log_interval>* epochs)
+```  
+
 Control the training by modifying the default values for the following parameters:
 ```
 --device = cuda (train on cuda)  
@@ -30,7 +38,7 @@ Resume training by specifying a valid value for `--restore_epoch`.
 #### run `python main.py --mode=test --restore_epoch=* --test_ct_names=*`  
 Test the model saved at training epoch `--restore_epoch` on CT images specified.
 > `--test_ct_names` accepts a list of the CT images without the `.npy` extension.
-> > for example, the CT image at path `Data/Test/ct_sample1.npy` will be passed as `ct_sample1`.  
+> > for example, the CT image located at `Data/Test/ct_sample1.npy` will be passed as `ct_sample1`.  
 
 > The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded.
 
