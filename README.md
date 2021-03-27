@@ -11,8 +11,7 @@ For the complete description of the implementation methods and experiments pleas
 ### 1. Train
 
 run `python main.py`  
-<br/>  
-control the training by modifying the default values for the following parameters:
+Control the training by modifying the default values for the following parameters:
 ```
 --device = cuda (train on cuda)  
 --log_interval = 1 (print train & validation loss each epoch)
@@ -23,7 +22,6 @@ control the training by modifying the default values for the following parameter
 ### 2. Resume training
 
 run `python main.py --resume_training=true --restore_epoch=*`  
-<br/>  
-Resume training by specifying a valid `--restore_epoch`
+Resume training by specifying a valid value for `--restore_epoch`
 
 
