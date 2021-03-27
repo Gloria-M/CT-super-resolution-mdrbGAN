@@ -38,14 +38,14 @@ Test the model saved at training epoch `--restore_epoch` on CT images specified.
 ## Data path structure
 
 The data directory should have the following structure:
+```
+.
+├── Data
+    ├── Test
+    │   ├── *.npy
+    ├── Train
+    │   ├── *.npy
+    ├── Validation
+    │   ├── *.npy
+```
 
-```
-.  
-|-- Data  
-    |-- Test  
-        |-- *.npy  
-    |-- Train  
-        |-- *.npy  
-    |-- Validation  
-        |-- *.npy  
-```
