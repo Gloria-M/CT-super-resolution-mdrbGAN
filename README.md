@@ -23,6 +23,14 @@ Control the training by modifying the default values for the following parameter
 
 #### run `python main.py --resume_training=true --restore_epoch=*`  
 Resume training by specifying a valid value for `--restore_epoch`.  
-The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded
+> The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded
+
+### 3. Test
+
+#### run `python main.py --mode=test --restore_epoch=* --test_ct_names=*`  
+Test the model saved at training epoch `--restore_epoch` on CT images specified.
+> `--test_ct_names` accepts a list of the CT images without the `.npy` extension.
+> > for example, the CT image at path `Data/Test/ct_sample1.npy` will be passed as `ct_sample1`.
+> The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded.
 
 
