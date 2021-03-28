@@ -70,5 +70,5 @@ Test the model saved at training epoch `--restore_epoch` on CT images specified.
 
 <br/>  
 
-### Tools  
+#### **Tools**  
 `PyTorch`, `Tensorboard`
