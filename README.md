@@ -1,10 +1,29 @@
 # CT super-resolution using multiple dense resudual blocks based GAN
 
-This repository contains the implementation of CT super-resolution using multiple dense residual block based GAN presented in [[Zhang et al., 2020]](https://link.springer.com/article/10.1007/s11760-020-01790-5), with slight changes as recommended in [[Gulrajani et al., 2017]](https://arxiv.org/abs/1704.00028) and with architecture parameters adapted from [[Ledig et al., 2017]](https://arxiv.org/abs/1609.04802), in case they were not specified.
+This repository contains the PyTorch implementation of CT super-resolution using multiple dense residual block based GAN presented in [[Zhang et al., 2020]](https://link.springer.com/article/10.1007/s11760-020-01790-5), with slight changes as recommended in [[Gulrajani et al., 2017]](https://arxiv.org/abs/1704.00028) and with architecture parameters adapted from [[Ledig et al., 2017]](https://arxiv.org/abs/1609.04802), in case they were not specified.
 
 ### For the complete description of the implementation methods and experiments please refer to [CT_super-resolution](https://gloria-m.github.io/super_resolution.html).  
 
 <br/>  
+
+## Dataset
+
+The data used represent a subset of [MosMed Covid-19 dataset](https://journals.eco-vector.com/DD/article/view/46826). It consist in multiple chest CT scans of healthy and infected patients in `.nii.gz` 3D-format, with different number of scan slices and slices thickness.  
+The 3-dimensional CTs are splitted in slices and each slice is saved in `.npy` 2D-format.
+
+### Data path structure
+
+The data directory should have the following structure:
+```
+.
+├── Data
+    ├── Test
+    │   ├── *.npy
+    ├── Train
+    │   ├── *.npy
+    ├── Validation
+    │   ├── *.npy
+```  
 
 ## Usage
 
@@ -41,21 +60,6 @@ Test the model saved at training epoch `--restore_epoch` on CT images specified.
 > > for example, the CT image located at `Data/Test/ct_sample1.npy` will be passed as `ct_sample1`.  
 
 > The model saved as `Models/checkpoint_<restore_epoch>.pt` will be loaded.
-
-
-## Data path structure
-
-The data directory should have the following structure:
-```
-.
-├── Data
-    ├── Test
-    │   ├── *.npy
-    ├── Train
-    │   ├── *.npy
-    ├── Validation
-    │   ├── *.npy
-```  
 
 <br/>  
 
