@@ -275,7 +275,7 @@ class Trainer:
         """
         Method to write information of training and validation to Tensorboard at `epoch`.
         :param epoch: epoch to log the information for
-        :param resume: wether the training was resumed or not
+        :param resume: whether the training was resumed or not
         """
 
         # If the training was resumed, write to Tensorboard all the past information until the current epoch

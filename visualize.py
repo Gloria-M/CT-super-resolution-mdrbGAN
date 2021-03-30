@@ -1,3 +1,6 @@
+"""
+This module contains all methods and functions necessary for visualization.
+"""
 import os
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,8 +10,21 @@ import wget
 from zipfile import ZipFile
 
 class FontsScheme:
-    def __init__(self, fonts_dir):
+    """
+    This class defines the fonts used in plotting.
 
+    Attributes:
+         title_font: font used for titles
+         labels_font: font used for labels
+         text_font: font used for text
+         textS_font: font used for small text
+    """
+    def __init__(self, fonts_dir):
+        """
+        :param fonts_dir: path to the directory that will contain the downloaded font
+        """
+
+        # Download and unzip the Avenir font
         if not os.path.exists(fonts_dir):
             os.mkdir(fonts_dir)
         if not os.path.exists(os.path.join(fonts_dir, 'avenir_ff')):
@@ -20,14 +36,17 @@ class FontsScheme:
         regular_font_path = os.path.join(fonts_dir, "avenir_ff/AvenirLTStd-Book.otf")
         bold_font_path = os.path.join(fonts_dir, "avenir_ff/AvenirLTStd-Black.otf")
 
+        # Define the title font properties
         self.title_font = fm.FontProperties(fname=regular_font_path)
         self.title_font.set_size(16)
         self.title_font.set_style('normal')
 
+        # Define the labels font properties
         self.labels_font = fm.FontProperties(fname=regular_font_path)
         self.labels_font.set_size(14)
         self.labels_font.set_style('normal')
 
+        # Define the texts fonts properties
         self.text_font = fm.FontProperties(fname=regular_font_path)
         self.text_font.set_size(12)
         self.text_font.set_style('normal')
@@ -37,6 +56,9 @@ class FontsScheme:
 
 
 class ColorScheme:
+    """
+    This class contains the colors used in plotting.
+    """
     def __init__(self):
         self.coral = '#f56958'
         self.yellow = '#f6e813'
@@ -48,25 +70,52 @@ class ColorScheme:
 
 
 class GradientColorMap:
+    """
+    This class contains the color map used in plotting.
+
+    Attributes:
+        colors: list of colors used for the color map
+        name: the name of the color map
+        num_bins: number of color bins used for creating the color map
+    """
     def __init__(self, colors: list):
+        """
+        :param colors: list of colors used for creating the color map
+        """
         self.colors = colors
         self.name = 'gradient_cmap'
         self.num_bins = 100
 
     def get_cmap(self):
+        """
+        Method to create color map.
+        :return: color map
+        """
         cmap = LinearSegmentedColormap.from_list(self.name, self.colors, self.num_bins)
         return cmap
 
 
 class Visualizer:
+    """
+    This class containd methods for creating various visualizations for the MER task.
+    """
     def __init__(self, fonts_dir, plots_dir):
-
+        """
+        :param fonts_dir: path to the directory containing the font
+        :param plots_dir: path to the directory the plots will be written to
+        """
         self._plots_dir = plots_dir
         self._colors = ColorScheme()
         self._fonts = FontsScheme(fonts_dir)
 
     def visualize_ct(self, axis, ct_image, title=None, psnr=None):
-
+        """
+        Method to create CT image plot.
+        :param axis: plot axis
+        :param ct_image: CT image to plot
+        :param title: plot title
+        :param psnr: PSNR score, in the case of super-resolution CT image
+        """
         no_spines_plot(axis)
         no_ticks_plot(axis)
         axis.set_aspect('equal')
@@ -81,7 +130,13 @@ class Visualizer:
                            color=self._colors.darkT)
 
     def visualize_generated_ct(self, lr_ct, sr_ct, hr_ct, epoch):
-
+        """
+        Method to plot triplets of CT images: low-resolution, super-resolution, high-resolution.
+        :param lr_ct: low-resolution CT image
+        :param sr_ct: super-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :param epoch: current epoch
+        """
         lr_ct, sr_ct, hr_ct = lr_ct.squeeze().numpy(), sr_ct.squeeze().numpy(), hr_ct.squeeze().numpy()
 
         fig, ax = plt.subplots(3, 8, figsize=(20, 6), gridspec_kw={'hspace': .05, 'wspace': .25})
@@ -94,6 +149,7 @@ class Visualizer:
                 sr_title = 'super-res'
                 hr_title = 'high-res'
 
+            # Compute metrics for generated CT image
             hr_range = hr_ct[idx].max() - hr_ct[idx].min()
             mse = ((sr_ct[idx] - hr_ct[idx]) ** 2).mean()
             psnr = 10 * np.log10((hr_range ** 2) / mse)
@@ -106,7 +162,13 @@ class Visualizer:
         plt.close(fig)
 
     def get_generated_ct_fig(self, lr_ct, sr_ct, hr_ct):
-
+        """
+        Method to build figure with triplets of CT images: low-resolution, super-resolution, high-resolution.
+        :param lr_ct: low-resolution CT image
+        :param sr_ct: super-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: created figure
+        """
         lr_ct, sr_ct, hr_ct = lr_ct.squeeze().numpy(), sr_ct.squeeze().numpy(), hr_ct.squeeze().numpy()
 
         fig, ax = plt.subplots(3, 8, figsize=(20, 6), gridspec_kw={'hspace': .05, 'wspace': .15})
@@ -130,7 +192,12 @@ class Visualizer:
         return fig
 
     def plot_loss(self, axis, train_loss, val_loss):
-
+        """
+        Method to plot the train and validation losses.
+        :param axis: plot axis
+        :param train_loss: loss for training
+        :param val_loss: loss for validation
+        """
         axis.spines["top"].set_visible(False)
         axis.spines["right"].set_visible(False)
         axis.set_facecolor(self._colors.darkT)
@@ -158,7 +225,12 @@ class Visualizer:
         legend = axis.legend(['Validation', 'Train'], prop=self._fonts.text_font, framealpha=.25)
 
     def plot_psnr(self, axis, train_psnr, val_psnr):
-
+        """
+        Method to plot the train and validation PSNRs.
+        :param axis: plot axis
+        :param train_psnr: PSNR for training
+        :param val_psnr: PSNR for validation
+        """
         axis.spines["top"].set_visible(False)
         axis.spines["right"].set_visible(False)
         axis.set_facecolor(self._colors.darkT)
@@ -186,7 +258,12 @@ class Visualizer:
         legend = axis.legend(['Validation', 'Train'], prop=self._fonts.text_font, framealpha=.25)
 
     def visualize_performance(self, train_dict, val_dict, epoch):
-
+        """
+        Method to plot losses and PSNR scores for training and validation.
+        :param train_dict: dictionary with train information
+        :param val_dict: dictionary with validation information
+        :param epoch: current training epoch
+        """
         fig, ax = plt.subplots(1, 2, figsize=(18, 5), gridspec_kw={'wspace': .25})
 
         self.plot_loss(ax[0], train_dict['p_loss'], val_dict['p_loss'])
@@ -196,6 +273,13 @@ class Visualizer:
         plt.close(fig)
 
     def visualize_slice(self, axis, ct_slice, ct_name, scores_dict=None):
+        """
+        Method to create CT full slice plot.
+        :param axis: plot axis
+        :param ct_slice: CT slice to plot
+        :param ct_name: CT slice name
+        :param scores_dict: performance metrics dict, in the case of super-resolution CT image
+        """
 
         no_spines_plot(axis)
         no_ticks_plot(axis)
@@ -213,7 +297,15 @@ class Visualizer:
             axis.set_title(title, fontproperties=self._fonts.labels_font, color=self._colors.darkT)
 
     def visualize_full_slices(self, lr_slice, sr_slice, hr_slice, scores_dict, ct_name, epoch):
-
+        """
+        Method to visualize triplets of low-resolution, super-resolution and high-resolution CT full slices.
+        :param lr_slice: low-resolution CT slice
+        :param sr_slice: super-resolution CT slice
+        :param hr_slice:high-resolution CT slice
+        :param scores_dict: dictionary with performance metrics
+        :param ct_name: CT slice name
+        :param epoch:current epoch
+        """
         fig, ax = plt.subplots(1, 3, figsize=(20, 6), gridspec_kw={'wspace': .15})
 
         self.visualize_slice(ax[0], lr_slice, 'low-res')
@@ -225,6 +317,10 @@ class Visualizer:
 
 
 def no_spines_plot(axis):
+    """
+    Function to hide spines in plot.
+    :param axis: plot axis
+    """
     axis.spines["top"].set_visible(False)
     axis.spines["right"].set_visible(False)
     axis.spines["bottom"].set_visible(False)
@@ -232,5 +328,9 @@ def no_spines_plot(axis):
 
 
 def no_ticks_plot(axis):
+    """
+    Function to hide ticks in plot.
+    :param axis: plot axis
+    """
     axis.set_xticks([])
     axis.set_yticks([])
