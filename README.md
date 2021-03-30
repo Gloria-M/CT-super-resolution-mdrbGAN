@@ -65,8 +65,7 @@ Test the model saved at training epoch `--restore_epoch` on CT images specified.
 
 ## To Do
 
-> Add pre-processing code for CT scans __*.nii.gz  --> *.npy__  
-> Write `help` for arguments.  
+> Add pre-processing code for CT scans __*.nii.gz  --> *.npy__   
 
 <br/>  
 
