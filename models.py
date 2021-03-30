@@ -1,3 +1,8 @@
+"""
+This module defines the building of the Generative Adversarial Network based on
+multiple dense residual blocks.
+For the detailed description of the architecture please refer to https://gloria-m.github.io/super_resolution.html#s1.
+"""
 import numpy as np
 import torch
 from torch import autograd
@@ -6,6 +11,9 @@ import torch.nn as nn
 
 
 class ResUnit(nn.Module):
+    """
+    This class defines the Residual Unit module.
+    """
     def __init__(self, in_ch, hid_ch):
         super().__init__()
 
@@ -23,6 +31,9 @@ class ResUnit(nn.Module):
 
 
 class ResBlock(nn.Module):
+    """
+    This class defines the Residual Block module, consisting in 4 linked Residual Units.
+    """
     def __init__(self, in_ch, hid_ch):
         super().__init__()
 
@@ -55,6 +66,10 @@ class ResBlock(nn.Module):
 
 
 class Generator(nn.Module):
+    """
+    This class defines the Generator module of the GAN ensemble, composed of 4 densely connected Residual Blocks.
+    The Generator recieves a low-resolution CT image and generates a super-resolution CT image.
+    """
     def __init__(self, in_ch=1, hid_ch=64):
         super().__init__()
 
@@ -95,6 +110,9 @@ class Generator(nn.Module):
 
 
 class ConvBlock(nn.Module):
+    """
+    This class represents the Convolutional Block used in creating the Discriminator module.
+    """
     def __init__(self, in_ch, out_ch, stride, with_bn=True):
         super().__init__()
 
@@ -115,6 +133,9 @@ class ConvBlock(nn.Module):
 
 
 class Discriminator(nn.Module):
+    """
+    This class defines the Discriminator module of the GAN ensemble, composed of 8 Convolutional Blocks.
+    """
     def __init__(self):
         super().__init__()
 
@@ -144,22 +165,31 @@ class Discriminator(nn.Module):
 
 
 class FeatureExtractor(nn.Module):
+    """
+    This class defines the Feature Extractor module of the GAN ensemble.
+    This is represented by a substructure of the VGG-19 model.
+    """
     def __init__(self, device):
         super().__init__()
 
         self._device = device
+        # Load the pre-trained VGG-19 weights
         vgg19_model = models.vgg19(pretrained=True)
 
+        # The Feature Extractor uses the sequence of convolutions and subsampling layers defined in VGG-19.
         self._features = vgg19_model.features[:36]
         for name, param in self._features.named_parameters():
             param.requires_grad = False
 
     def forward(self, ct):
+        # Normalize the CT images according to the VGG-19 authors' recomendation.
         mean = torch.tensor([0.485, 0.456, 0.406]).to(self._device)
         std = torch.tensor([0.229, 0.224, 0.225]).to(self._device)
         mean = mean.view(1, 3, 1, 1)
         std = std.view(1, 3, 1, 1)
 
+        # The generated and high-resolution CT images have a single channel.
+        # In order to be fed as input to the VGG-19 feature extractor, expand them to 3 channels.
         ct = ct.repeat(1, 3, 1, 1)
         ct = (ct - mean) / std
 
@@ -169,51 +199,100 @@ class FeatureExtractor(nn.Module):
 
 
 class MDRB_GAN(nn.Module):
+    """
+    This class defines the GAN ensemble, composed of the previously defined Generator,
+    Feature Extractor and Discriminator modules.
+    """
     def __init__(self, device, alpha_param, lambda_coeff):
         super().__init__()
 
+        # Parameters for computing the GAN loss
         self._alpha = alpha_param
         self._lambda_coeff = lambda_coeff
+
         self._device = device
 
+        # Initialize GAN modules
         self.generator = Generator()
         self.discriminator = Discriminator()
         self.feature_extractor = FeatureExtractor(self._device)
 
     def f_loss(self, lr_ct, hr_ct):
+        """
+        Method to compute F-loss from feature maps obtained by the Feature Extractor module,
+         used to optimize the Generator.
+        :param lr_ct: low-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: value of F-loss
+        """
+
+        # Generate super-resolution CT image from the low-resolution CT image
         sr_ct = self.generator(lr_ct)
+        # Extract features from the super-resolution and high-resolution CT images
         sr_features = self.feature_extractor(sr_ct)
         hr_features = self.feature_extractor(hr_ct)
 
+        # Compute loss
         criterion = nn.MSELoss()
         f_loss = criterion(sr_features, hr_features)
 
         return f_loss
 
     def g_loss(self, lr_ct, hr_ct):
+        """
+        Method to compute the Generator loss.
+        :param lr_ct: low-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: value of Generator loss
+        """
+
+        # Generate super-resolution CT image from the low-resolution CT image
         sr_ct = self.generator(lr_ct)
+        # Get the probability the super-resolution CT image to be the high-resolution CT image
         sr_critic = self.discriminator(sr_ct)
 
+        # Compute the Generator loss by incorporating the previously defined F-loss
         f_loss = self.f_loss(lr_ct, hr_ct)
         g_loss = self._alpha * f_loss - (1 - self._alpha) * torch.mean(sr_critic)
 
         return f_loss, g_loss
 
-    def generate_mixed_ct(self, lr_ct, hr_ct):
-        epsilon_shape = [1 for _ in lr_ct.shape]
+    def generate_mixed_ct(self, sr_ct, hr_ct):
+        """
+        Method to create a mixed CT image from randomly weighted average between high-resolution and
+        generated super-resolution CT images.
+        :param sr_ct: generated super-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: mixed CT image
+        """
 
+        # Generate rondom weights
+        epsilon_shape = [1 for _ in sr_ct.shape]
         epsilon = torch.rand(epsilon_shape, device=self._device).float()
-        ct_hat = epsilon * lr_ct + (1 - epsilon) * hr_ct
+
+        # Compute weighted average between super-resolution and high-resolution CT images
+        ct_hat = epsilon * sr_ct + (1 - epsilon) * hr_ct
         ct_hat = ct_hat.float()
         ct_hat = ct_hat.to(self._device)
 
         return ct_hat
 
     def compute_gradient_penalty(self, lr_ct, hr_ct):
+        """
+        Method to compute the gradient penalty used in Wasserstein Loss computation,
+        to achieve Lipschitz continuity.
+        :param lr_ct: low-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: value to penalize the model with
+        """
+
+        # Generate super-resolution CT images from low-resolution CT images
         sr_ct = self.generator(lr_ct)
+        # Create mixed CT image by weighted averaging the super-resolution and high-resolution images
         ct_hat = self.generate_mixed_ct(sr_ct, hr_ct)
         ct_hat_critic = self.discriminator(ct_hat)
 
+        # Compute the gradients for the mixed CT image
         grad_outputs = torch.ones_like(ct_hat_critic).to(self._device)
         gradients = autograd.grad(outputs=ct_hat_critic, inputs=ct_hat,
                                   grad_outputs=grad_outputs,
@@ -221,29 +300,55 @@ class MDRB_GAN(nn.Module):
                                   only_inputs=True)[0]
         gradients = gradients.view(gradients.size(0), -1)
 
+        # Compute the gradient penalty
         gradient_penalty = self._lambda_coeff * torch.mean(
             (gradients.norm(2, dim=1) - 1) ** 2)
 
         return gradient_penalty
 
     def w_loss(self, lr_ct, hr_ct):
+        """
+        Method to define the Wasserstein Loss.
+        :param lr_ct: low-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: value of Wasserstein loss
+        """
+
+        # Generate super-resolution CT image
         sr_ct = self.generator(lr_ct)
+        # Discriminate super-resolution and high-resolution images
         sr_critic = self.discriminator(sr_ct)
         hr_critic = self.discriminator(hr_ct)
+
+        # Compute the gradient penalty
         gp = self.compute_gradient_penalty(lr_ct, hr_ct)
 
+        # Compute the Wasserstein loss
+        # If the gradient norm moves away from the target value of 1, the model is penalized accordingly
         w_loss = -torch.mean(hr_critic) + torch.mean(sr_critic) + gp
         w_loss = (1 - self._alpha) * w_loss
 
         return w_loss
 
     def psnr(self, lr_ct, hr_ct):
+        """
+        Method to compute the Peak signal-to-noise ratio (PSNR), to measure the quality of a
+        generated super-resolution CT image.
+        :param lr_ct: low-resolution CT image
+        :param hr_ct: high-resolution CT image
+        :return: PSNR score, super-resolution CT image value range
+        """
+
+        # Generate super-resolution CT image from low-resolution CT image
         sr_ct = self.generator(lr_ct)
         criterion = nn.MSELoss()
 
+        # Compute the MSE between the super-resolution and high-resolution images
         loss = criterion(sr_ct, hr_ct)
         loss = loss.data.cpu().numpy()
+        # Compute PSNR score
         psnr = 10 * np.log10(1 / loss)
+        # Get value range of super-resolution CT image
         sr_range = [torch.min(sr_ct).detach().cpu().numpy().item(),
                     torch.max(sr_ct).detach().cpu().numpy().item()]
 

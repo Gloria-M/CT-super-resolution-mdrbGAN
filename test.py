@@ -4,7 +4,6 @@ import torch
 
 from models import Generator
 from data_loader import make_loader
-from visualize import Visualizer
 from utility_functions import *
 
 
